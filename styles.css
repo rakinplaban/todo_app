@@ -1,0 +1,39 @@
+.entry {
+  margin: 200px 550px 0px 550px;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.formview {
+  margin: 10px 10px 10px 10px;
+}
+
+#posts {
+  margin: 10px 10px 10px 10px;
+}
+
+.card-header-background {
+  background-color: rgb(102, 252, 182);
+}
+
+.nabclass {
+  position: fixed;
+  z-index: 1;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+}
+
+#likebtn {
+  color: blue;
+  text-decoration: none;
+}
+
+.num_of_likes {
+  color: blue;
+  font-weight: 700;
+}
+
+label {
+  color: red;
+}/*# sourceMappingURL=styles.css.map */
