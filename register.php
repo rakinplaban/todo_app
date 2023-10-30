@@ -11,6 +11,8 @@
         die("Connection failed: " . $conn->connect_error);
     }
 
+    session_start();
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Retrieve user input from the form
         $first_name = $_POST['first_name'];
@@ -38,7 +40,9 @@
                 $stmt->bind_param("ssss", $first_name, $last_name, $email, $hashed_password);
                 if ($stmt->execute()) {
                     // Registration was successful
-                    header("Location: registration_success.php");
+                    $user_id = $stmt->insert_id;
+                    $_SESSION["user_id"] = $user_id;
+                    header("Location: index.php");
                     exit();
                 } else {
                     // Handle database error
@@ -70,6 +74,11 @@
 
         <div class="bg-light border border-success">
             <div class="formview">
+                <?php if (!empty($error_message)) : ?>
+                    <div class="alert alert-danger" style="background-color: red; color: white;">
+                        <?php echo $error_message; ?>
+                    </div>
+                <?php endif; ?>
                 <form action="" method="post">
                     
                     <div class="form-group">
