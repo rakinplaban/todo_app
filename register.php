@@ -1,3 +1,63 @@
+<?php
+// My database connection code.
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "todo";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Retrieve user input from the form
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $confirmation = $_POST['confirmation'];
+
+        // Validate user input (you can add more validation as needed)
+        if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($confirmation)) {
+            // Handle validation errors here
+            $error_message = "All fields are required.";
+        } elseif ($password !== $confirmation) {
+            // Handle password mismatch error
+            $error_message = "Password and confirmation do not match.";
+        } else {
+            // Hash the password for security (you should use a strong hashing library)
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+            // Prepare the SQL statement using placeholders
+            $sql = "INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
+
+            $stmt = $conn->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param("ssss", $first_name, $last_name, $email, $hashed_password);
+                if ($stmt->execute()) {
+                    // Registration was successful
+                    header("Location: registration_success.php");
+                    exit();
+                } else {
+                    // Handle database error
+                    $error_message = "Registration failed. Please try again.";
+                }
+                $stmt->close();
+            } else {
+                // Handle database error
+                $error_message = "Registration failed. Please try again.";
+            }
+        }
+    }
+
+
+
+?>
+
+
+
 <?php 
     $pageTitle = "Register User";
     include "layout.php" 
