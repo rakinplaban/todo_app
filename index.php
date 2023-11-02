@@ -3,18 +3,18 @@
     include "layout.php"; 
 ?>
 
-
 <?php
 // Check if the user is logged in (you might have a different session variable, adjust accordingly)
-session_start();
+// session_start();
+include "dbconnect.php";
 if (!isset($_SESSION['user_id'])) {
     // Redirect to the login page or handle unauthorized access as needed
     header("Location: login.php"); // Replace 'login.php' with your login page
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $task = $_POST['task'];
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['task'])) {
+    $task = $_GET['task'];
     $user_id = $_SESSION['user_id']; // Get user_id from the session
 
     // Input validation (add more as needed)
@@ -22,16 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "error";
     } else {
         // Establish a database connection (replace with your connection code)
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "todo";
+        	
+        // $servername = "localhost";
+        // $username = "root";
+        // $password = "";
+        // $dbname = "todo";
 
-        $conn = new mysqli($servername, $username, $password, $dbname);
+        // $conn = new mysqli($servername, $username, $password, $dbname);
 
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+        // if ($conn->connect_error) {
+        //     die("Connection failed: " . $conn->connect_error);
+        // }
 
         // Perform the database insert
         $sql = "INSERT INTO active_task (task,User_id) VALUES (?, ?)";
@@ -74,13 +75,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="popup" id="popup">
-        <form action="">
+        <form action="" method="GET">
             <h2>Add New Task</h2>
             <label for="task">Task:</label>
             <input type="text" id="task" name="task" class="form-control">
             <br>
             <input class="btn btn-primary" type="submit" value="Submit">
         </form>
+    </div>
+    <div class="tasklist">
+        <ul id="task-list">
+            <ol> <span class="dot"></span> <div class="task_name">Work</div> </ol>
+            <ol> <span class="dot"></span> <div class="task_name">Work</div> </ol>
+            <ol> <span class="dot"></span> <div class="task_name">Work</div> </ol>
+        </ul>
     </div>
 
     <script>
