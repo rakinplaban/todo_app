@@ -146,4 +146,20 @@ div.content {
   left: 45%;
   top: 0;
   transform: translate(-50%, 0) rotate(90deg);
-}/*# sourceMappingURL=styles.css.map */
+}
+
+/* Popup form */
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(224, 255, 249);
+  padding: 20px;
+  border: 1px solid #3498db;
+  z-index: 999;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Add your existing CSS for the circle and square here *//*# sourceMappingURL=styles.css.map */
