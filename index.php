@@ -2,9 +2,66 @@
     $pageTitle = "Home";
     include "layout.php"; 
 ?>
+
+
+<?php
+// Check if the user is logged in (you might have a different session variable, adjust accordingly)
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page or handle unauthorized access as needed
+    header("Location: login.php"); // Replace 'login.php' with your login page
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $task = $_POST['task'];
+    $user_id = $_SESSION['user_id']; // Get user_id from the session
+
+    // Input validation (add more as needed)
+    if (empty($task)) {
+        echo "error";
+    } else {
+        // Establish a database connection (replace with your connection code)
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "todo";
+
+        $conn = new mysqli($servername, $username, $password, $dbname);
+
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        // Perform the database insert
+        $sql = "INSERT INTO active_task (task,User_id) VALUES (?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("ss", $task, $user_id);
+            if ($stmt->execute()) {
+                // Task added successfully
+                echo "success";
+            } else {
+                // Database error
+                echo "error";
+            }
+            $stmt->close();
+        } else {
+            // Database error
+            echo "error";
+        }
+
+        $conn->close();
+    }
+}
+?>
+
+
+
     <div class="sidebar">
         <a class="active" href="#active">Add Task</a>
         <a href="completed.php">Completed</a>
+        <a href="logout.php">Logout</a>
     </div>
 
     <div class="container" id = "container">
