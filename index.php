@@ -1,41 +1,32 @@
 <?php
-    $pageTitle = "Home";
-    include "layout.php"; 
+$pageTitle = "Home";
+include "layout.php"; 
 ?>
 
 <?php
 // Check if the user is logged in (you might have a different session variable, adjust accordingly)
-// session_start();
+
 include "dbconnect.php";
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) { 
     // Redirect to the login page or handle unauthorized access as needed
     header("Location: login.php"); // Replace 'login.php' with your login page
     exit();
 }
+
+$rows = null; // Initialize $rows to null
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['task'])) {
     $task = $_GET['task'];
     $user_id = $_SESSION['user_id']; // Get user_id from the session
 
     // Input validation (add more as needed)
-    if (empty($task)) {
+    if (empty($task)) { 
         echo "error";
     } else {
         // Establish a database connection (replace with your connection code)
-        	
-        // $servername = "localhost";
-        // $username = "root";
-        // $password = "";
-        // $dbname = "todo";
-
-        // $conn = new mysqli($servername, $username, $password, $dbname);
-
-        // if ($conn->connect_error) {
-        //     die("Connection failed: " . $conn->connect_error);
-        // }
 
         // Perform the database insert
-        $sql = "INSERT INTO active_task (task,User_id) VALUES (?, ?)";
+        $sql = "INSERT INTO active_task (task, User_id) VALUES (?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
             $stmt->bind_param("ss", $task, $user_id);
@@ -52,9 +43,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['task'])) {
             echo "error";
         }
 
-        $conn->close();
+        $query = "SELECT task FROM active_task WHERE User_id = ?";
+        $stmt = $conn->prepare($query);
+        if ($stmt) {
+            $stmt->bind_param("s", $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+
+            echo "<pre>";
+            var_dump($stmt);
+            var_dump($result);
+            var_dump($rows);
+            echo "</pre>";
+
+        }
     }
 }
+$conn->close();
 ?>
 
 
@@ -85,9 +91,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['task'])) {
     </div>
     <div class="tasklist">
         <ul id="task-list">
-            <ol> <span class="dot"></span> <div class="task_name">Work</div> </ol>
-            <ol> <span class="dot"></span> <div class="task_name">Work</div> </ol>
-            <ol> <span class="dot"></span> <div class="task_name">Work</div> </ol>
+            <?php
+                if (!is_null($rows) && count($rows) > 0) {
+                    foreach ($rows as $row) {
+                        echo "<li> <span class='dot'></span> <div class='task_name'>" . $row["task"] . "</div> </li>";
+                    }
+                }
+            ?>   
         </ul>
     </div>
 
@@ -166,6 +176,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['task'])) {
             };
             xhr.send("task=" + task);
         });
+
+
+        // Function to fetch tasks and update the task list
+        
+
+       // Function to fetch tasks and update the task list
+        function fetchTasks() {
+            fetch('get_tasks.php')
+                .then(response => response.json())
+                .then(data => {
+                    const taskList = document.getElementById('task-list');
+                    taskList.innerHTML = ''; // Clear the current list
+                
+                    data.tasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="dot"></span> <div class="task_name">${task}</div>`;
+                        taskList.appendChild(li);
+                   });
+               })
+               .catch(error => {
+                   console.error('Error fetching tasks:', error);
+               });
+        }
+
+        // Call the fetchTasks function to load tasks when the page loads
+        fetchTasks();
+
+        // Update your submit event listener to add a new task using AJAX
+        taskForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent form submission
+
+            const taskInput = document.getElementById('task');
+            const task = taskInput.value.trim();
+
+            if (task === '') {
+                return; // Don't add empty tasks
+            }
+
+            // Send the new task to the server using AJAX
+            fetch('add_task.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+               body: `task=${task}`,
+            })
+                .then(response => response.text())
+                .then(response => {
+                    if (response === 'success') {
+                        addTaskToList(task);
+                        taskInput.value = ''; // Clear the input field
+                        fetchTasks(); // Fetch and update the task list
+                    } else {
+                        console.error('Failed to add the task.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding task:', error);
+                });
+        });
+
+
     </script>
 
 <?php
