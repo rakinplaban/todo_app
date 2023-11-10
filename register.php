@@ -1,17 +1,18 @@
 <?php
+    include "dbconnect.php";
 // My database connection code.
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "todo";
+    // $servername = "localhost";
+    // $username = "root";
+    // $password = "";
+    // $dbname = "todo";
 
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    // $conn = new mysqli($servername, $username, $password, $dbname);
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+    // if ($conn->connect_error) {
+    //     die("Connection failed: " . $conn->connect_error);
+    // }
 
-    session_start();
+    // session_start();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Retrieve user input from the form
