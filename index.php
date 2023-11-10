@@ -1,9 +1,7 @@
 <?php
 $pageTitle = "Home";
 include "layout.php"; 
-?>
 
-<?php
 // Check if the user is logged in (you might have a different session variable, adjust accordingly)
 
 include "dbconnect.php";
@@ -13,11 +11,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$rows = null; // Initialize $rows to null
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['task'])) {
+//$tasks = []; // Initialize $rows to null
+$user_id = $_SESSION['user_id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['task'])) {
     $task = $_GET['task'];
-    $user_id = $_SESSION['user_id']; // Get user_id from the session
+    // $user_id = $_SESSION['user_id']; // Get user_id from the session
 
     // Input validation (add more as needed)
     if (empty($task)) { 
@@ -30,36 +28,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['task'])) {
         $stmt = $conn->prepare($sql);
         if ($stmt) {
             $stmt->bind_param("ss", $task, $user_id);
-            if ($stmt->execute()) {
-                // Task added successfully
-                echo "success";
-            } else {
-                // Database error
-                echo "error";
-            }
+            // if ($stmt->execute()) {
+            //     // Task added successfully
+            //     echo "success";
+            // } else {
+            //     // Database error
+            //     echo "error";
+            // }
             $stmt->close();
         } else {
             // Database error
             echo "error";
         }
 
-        $query = "SELECT task FROM active_task WHERE User_id = ?";
-        $stmt = $conn->prepare($query);
-        if ($stmt) {
-            $stmt->bind_param("s", $user_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $rows = $result->fetch_all(MYSQLI_ASSOC);
+        // $query = "SELECT task FROM active_task WHERE User_id = ?";
+        // $stmt_1 = $conn->prepare($query);
+        // // $tasks = [];
+        // if ($stmt_1) {
+        //     $stmt_1->bind_param("s", $user_id);
+        //     $stmt_1->execute();
+        //     $tasks = $stmt_1->get_result();
+            // $tasks = $result->fetch_all(MYSQLI_ASSOC);
 
-            echo "<pre>";
-            var_dump($stmt);
-            var_dump($result);
-            var_dump($rows);
-            echo "</pre>";
+
+        //     $tasks = [];
+        //     if (!empty($rows)) {
+        //         foreach ($rows as $row) {
+        //             $tasks[] = $row["task"];
+        //         }
+        // }
 
         }
     }
-}
+
+    $query = "SELECT task FROM active_task WHERE User_id = ?";
+    $stmt_1 = $conn->prepare($query);
+        // $tasks = [];
+    if ($stmt_1) {
+        $stmt_1->bind_param("s", $user_id);
+        $stmt_1->execute();
+        $tasks = $stmt_1->get_result();
+    }
 $conn->close();
 ?>
 
@@ -81,7 +90,7 @@ $conn->close();
     </div>
 
     <div class="popup" id="popup">
-        <form action="" method="GET">
+        <form action="" method="POST">
             <h2>Add New Task</h2>
             <label for="task">Task:</label>
             <input type="text" id="task" name="task" class="form-control">
@@ -92,16 +101,18 @@ $conn->close();
     <div class="tasklist">
         <ul id="task-list">
             <?php
-                if (!is_null($rows) && count($rows) > 0) {
-                    foreach ($rows as $row) {
-                        echo "<li> <span class='dot'></span> <div class='task_name'>" . $row["task"] . "</div> </li>";
-                    }
+                while($rows=$tasks->fetch_assoc())
+                {
+            ?>
+                    <li> <span class='dot'></span> <div class='task_name'><?php echo $rows["task"]; ?></div> </li>
+            <?php
                 }
-            ?>   
+            ?>
         </ul>
     </div>
 
     <script>
+        
         document.getElementById("circle").addEventListener("click", function(event) {
             showPopup();
             event.stopPropagation();
@@ -122,31 +133,46 @@ $conn->close();
             var popup = document.getElementById("popup");
             popup.style.display = "none";
         }
+        
+      
+        // Embed tasks directly into JavaScript
+        
+
 
         // Function to add a task to the task list
         function addTaskToList(task) {
             var taskList = document.getElementById("task-list");
             var li = document.createElement("li");
-            li.textContent = task;
+            li.innerHTML = `<span class="dot"></span> <div class="task_name">${task}</div>`;
             taskList.appendChild(li);
         }
 
+        // Initial tasks loaded from PHP
+        
+
+    
+
         // Add a click event listener to the circle
-        var circle = document.getElementById("container");
-        circle.addEventListener("click", openPopup);
+        // Add a click event listener to the circle
+var circle = document.querySelector("#container");
+circle.addEventListener("click", function (event) {
+    showPopup();
+    event.stopPropagation(); // Prevent event propagation to the document
+});
 
-        function showPopup() {
-            var popup = document.getElementById("popup");
-            popup.style.display = "block";
+function showPopup() {
+    var popup = document.getElementById("popup");
+    popup.style.display = "block";
 
-            // Add a click event to the document to close the popup when clicking anywhere outside
-            document.addEventListener("click", function closePopup(event) {
-                if (event.target !== popup && !popup.contains(event.target)) {
-                    hidePopup();
-                    document.removeEventListener("click", closePopup);
-                }
-            });
+    // Add a click event to the document to close the popup when clicking anywhere outside
+    document.addEventListener("click", function closePopup(event) {
+        if (event.target !== popup && !popup.contains(event.target)) {
+            hidePopup();
+            document.removeEventListener("click", closePopup);
         }
+    });
+}
+
 
         function hidePopup() {
             var popup = document.getElementById("popup");
@@ -177,8 +203,6 @@ $conn->close();
             xhr.send("task=" + task);
         });
 
-
-        // Function to fetch tasks and update the task list
         
 
        // Function to fetch tasks and update the task list
@@ -208,9 +232,9 @@ $conn->close();
             e.preventDefault(); // Prevent form submission
 
             const taskInput = document.getElementById('task');
-            const task = taskInput.value.trim();
+            const task_ = taskInput.value.trim();
 
-            if (task === '') {
+            if (task_ === '') {
                 return; // Don't add empty tasks
             }
 
@@ -220,7 +244,7 @@ $conn->close();
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-               body: `task=${task}`,
+               body: `task=${task_}`,
             })
                 .then(response => response.text())
                 .then(response => {
