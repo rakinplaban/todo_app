@@ -9,7 +9,7 @@
 
     $user_id = $_SESSION['user_id'];
 
-    $query = "SELECT task FROM active_task WHERE User_id = ? AND completion_state = ?";
+    $query = "SELECT id, task FROM active_task WHERE User_id = ? AND completion_state = ?";
     $stmt = $conn->prepare($query);
 
     $completion_state = false;
