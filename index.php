@@ -34,11 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task'])) {
         }
     }
 
-    $query = "SELECT task FROM active_task WHERE User_id = ?";
+    $query = "SELECT task FROM active_task WHERE User_id = ? AND completion_state = ?";
     $stmt_1 = $conn->prepare($query);
-        // $tasks = [];
+    $completion_state = false;
     if ($stmt_1) {
-        $stmt_1->bind_param("s", $user_id);
+        $stmt_1->bind_param("si", $user_id, $completion_state);
         $stmt_1->execute();
         $res = $stmt_1->get_result();
         $tasks = $res->fetch_all(MYSQLI_ASSOC);
@@ -78,7 +78,7 @@ $conn->close();
                 foreach($tasks as $task)
                 {
             ?>
-                    <li> <span class='dot'></span> <div class='task_name'><?php echo $task["task"]; ?></div> </li>
+                    <li> <span class='dot'></span> <span class='task_name'><?php echo $task["task"]; ?></span> </li>
             <?php
                 }
             ?>
@@ -95,7 +95,7 @@ $conn->close();
         function addTaskToList(task) {
             var taskList = document.getElementById("task-list");
             var li = document.createElement("li");
-            li.innerHTML = `<span class="dot"></span> <div class="task_name">${task}</div>`;
+            li.innerHTML = `<span class="dot"></span> <span class="task_name">${task}</span>`;
             taskList.appendChild(li);
         }
 
@@ -134,7 +134,7 @@ $conn->close();
                     data.tasks.forEach(task => {
                         console.log(task);
                         const li = document.createElement('li');
-                        li.innerHTML = `<span class="dot"></span> <div class="task_name">${task.task}</div>`;
+                        li.innerHTML = `<span class="dot"></span> <span class="task_name">${task.task}</span>`;
                         taskList.appendChild(li);
                     });
                 }
