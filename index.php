@@ -1,52 +1,64 @@
 <?php
-$pageTitle = "Home";
-include "layout.php"; 
+    $pageTitle = "Home";
+    include "layout.php"; 
 
 // Check if the user is logged in (you might have a different session variable, adjust accordingly)
 
-include "dbconnect.php";
-if (!isset($_SESSION['user_id'])) { 
-    // Redirect to the login page or handle unauthorized access as needed
-    header("Location: login.php"); // Replace 'login.php' with your login page
-    exit();
-}
+    include "dbconnect.php";
+    if (!isset($_SESSION['user_id'])) { 
+        // Redirect to the login page or handle unauthorized access as needed
+        header("Location: login.php"); // Replace 'login.php' with your login page
+        exit();
+    }
 
-//$tasks = []; // Initialize $rows to null
-$user_id = $_SESSION['user_id'];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task'])) {
-    $task = $_POST['task'];
 
-    // Input validation (add more as needed)
-    if (empty($task)) { 
-        echo "error";
-    } else {
-        // Perform the database insert
-        $sql = "INSERT INTO active_task (task, User_id) VALUES (?, ?)";
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("ss", $task, $user_id);
-            $stmt->close();
-        } else {
-            // Database error
+    $user_id = $_SESSION['user_id'];    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task'])) {
+        $task = $_POST['task'];
+
+        // Input validation (add more as needed)
+        if (empty($task)) { 
             echo "error";
+        } else {
+            // Perform the database insert
+            $sql = "INSERT INTO active_task (task, User_id) VALUES (?, ?)";
+            $stmt = $conn->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param("ss", $task, $user_id);
+                $stmt->close();
+            } else {
+                // Database error
+                echo "error";
+            }
         }
+    }elseif (isset($_POST['taskId'])) {
+        $taskId = $_POST['taskId'];
 
+        // Update completion state
+        $updateQuery = "UPDATE active_task SET completion_state = TRUE WHERE id = ?";
+        $stmtUpdate = $conn->prepare($updateQuery);
+        if ($stmtUpdate) {
+            $stmtUpdate->bind_param("is", $taskId, $user_id);
+            $stmtUpdate->execute();
+            $stmtUpdate->close();
+            echo "success";
+        } else {
+            echo "error";
         }
     }
 
-    $query = "SELECT task FROM active_task WHERE User_id = ?";
+    $query = "SELECT id, task FROM active_task WHERE User_id = ? AND completion_state = ?";
     $stmt_1 = $conn->prepare($query);
-        // $tasks = [];
+    $completion_state = FALSE;
     if ($stmt_1) {
-        $stmt_1->bind_param("s", $user_id);
+        $stmt_1->bind_param("si", $user_id, $completion_state);
         $stmt_1->execute();
         $res = $stmt_1->get_result();
         $tasks = $res->fetch_all(MYSQLI_ASSOC);
     }
-$conn->close();
+
+    $conn->close();
 ?>
-
-
 
     <div class="sidebar">
         <a class="active" href="#active">Add Task</a>
@@ -75,15 +87,18 @@ $conn->close();
     <div class="tasklist">
         <ul id="task-list">
             <?php
-                foreach($tasks as $task)
-                {
+                foreach($tasks as $task) {
             ?>
-                    <li> <span class='dot'></span> <div class='task_name'><?php echo $task["task"]; ?></div> </li>
+                <li data-task-id="<?php echo $task["id"]; ?>">
+                    <span class='dot'></span>
+                    <span class='task_name'><?php echo $task["task"] ?></span>
+                </li>
             <?php
                 }
             ?>
         </ul>
     </div>
+
 
     <script>
         document.querySelector("#container").addEventListener("click", function(event) {
@@ -95,7 +110,8 @@ $conn->close();
         function addTaskToList(task) {
             var taskList = document.getElementById("task-list");
             var li = document.createElement("li");
-            li.innerHTML = `<span class="dot"></span> <div class="task_name">${task}</div>`;
+            li.setAttribute("data-task-id", task.id);
+            li.innerHTML = `<span class="dot"></span> <span class="task_name">${task}</span>`;
             taskList.appendChild(li);
         }
 
@@ -134,7 +150,8 @@ $conn->close();
                     data.tasks.forEach(task => {
                         console.log(task);
                         const li = document.createElement('li');
-                        li.innerHTML = `<span class="dot"></span> <div class="task_name">${task.task}</div>`;
+                        li.setAttribute("data-task-id", task.id);
+                        li.innerHTML = `<span class="dot"></span> <span class="task_name">${task.task}</span>`;
                         taskList.appendChild(li);
                     });
                 }
@@ -182,6 +199,36 @@ $conn->close();
                 });
         });
 
+
+        document.querySelector("#task-list").addEventListener("click", function (event) {
+        const target = event.target;
+
+        if (target.classList.contains("dot")) {
+            const taskId = target.closest("li").getAttribute("data-task-id");
+            console.log('Retrieved taskId:', taskId);
+            // Rest of your code
+            fetch('update_task.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `taskId=${taskId}`, // Include taskId in the request body
+            })
+                .then(response => response.text())
+                .then(response => {
+                    if (response === 'success') {
+                        // Update UI to mark the task as completed
+                        target.style.backgroundColor = 'green';
+                        target.parentElement.style.opacity = '0';
+                    } else {
+                        console.error('Failed to update task completion status.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating task completion status:', error);
+                });
+        }
+    });
 
     </script>
 

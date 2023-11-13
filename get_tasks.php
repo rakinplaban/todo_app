@@ -9,10 +9,13 @@
 
     $user_id = $_SESSION['user_id'];
 
-    $query = "SELECT task FROM active_task WHERE User_id = ?";
+    $query = "SELECT id, task FROM active_task WHERE User_id = ? AND completion_state = ?";
     $stmt = $conn->prepare($query);
+
+    $completion_state = false;
+
     if ($stmt) {
-        $stmt->bind_param("s", $user_id);
+        $stmt->bind_param("si", $user_id, $completion_state);
         $stmt->execute();
         $result = $stmt->get_result();
         $tasks = $result->fetch_all(MYSQLI_ASSOC);
