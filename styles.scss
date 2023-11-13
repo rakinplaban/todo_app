@@ -214,6 +214,15 @@ label{
   display: inline-block;
 }
 
+.dot-completed {
+  height: 25px;
+  width: 25px;
+  border: 2px solid #3498db;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: aqua;
+}
+
 .task_name{
   color: #3498db;
   display: inline-block;

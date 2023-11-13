@@ -1,17 +1,17 @@
 <?php
-$pageTitle = "Home";
-include "layout.php"; 
+    $pageTitle = "Home";
+    include "layout.php"; 
 
 // Check if the user is logged in (you might have a different session variable, adjust accordingly)
 
-include "dbconnect.php";
-if (!isset($_SESSION['user_id'])) { 
-    // Redirect to the login page or handle unauthorized access as needed
-    header("Location: login.php"); // Replace 'login.php' with your login page
-    exit();
-}
+    include "dbconnect.php";
+    if (!isset($_SESSION['user_id'])) { 
+        // Redirect to the login page or handle unauthorized access as needed
+        header("Location: login.php"); // Replace 'login.php' with your login page
+        exit();
+    }
 
-//$tasks = []; // Initialize $rows to null
+
     $user_id = $_SESSION['user_id'];    
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task'])) {
         $task = $_POST['task'];
@@ -48,19 +48,17 @@ if (!isset($_SESSION['user_id'])) {
     }
 
     $query = "SELECT id, task FROM active_task WHERE User_id = ? AND completion_state = ?";
-$stmt_1 = $conn->prepare($query);
-$completion_state = FALSE;
-if ($stmt_1) {
-    $stmt_1->bind_param("si", $user_id, $completion_state);
-    $stmt_1->execute();
-    $res = $stmt_1->get_result();
-    $tasks = $res->fetch_all(MYSQLI_ASSOC);
-}
+    $stmt_1 = $conn->prepare($query);
+    $completion_state = FALSE;
+    if ($stmt_1) {
+        $stmt_1->bind_param("si", $user_id, $completion_state);
+        $stmt_1->execute();
+        $res = $stmt_1->get_result();
+        $tasks = $res->fetch_all(MYSQLI_ASSOC);
+    }
 
-$conn->close();
+    $conn->close();
 ?>
-
-
 
     <div class="sidebar">
         <a class="active" href="#active">Add Task</a>
@@ -87,20 +85,19 @@ $conn->close();
         </form>
     </div>
     <div class="tasklist">
-    <ul id="task-list">
-    <?php
-foreach($tasks as $task) {
-?>
-    <li data-task-id="<?php echo $task["id"]; ?>">
-        <span class='dot'></span>
-        <span class='task_name'><?php echo $task["task"] ?></span>
-    </li>
-<?php
-}
-?>
-
-    </ul>
-</div>
+        <ul id="task-list">
+            <?php
+                foreach($tasks as $task) {
+            ?>
+                <li data-task-id="<?php echo $task["id"]; ?>">
+                    <span class='dot'></span>
+                    <span class='task_name'><?php echo $task["task"] ?></span>
+                </li>
+            <?php
+                }
+            ?>
+        </ul>
+    </div>
 
 
     <script>
@@ -204,37 +201,34 @@ foreach($tasks as $task) {
 
 
         document.querySelector("#task-list").addEventListener("click", function (event) {
-    const target = event.target;
+        const target = event.target;
 
-    if (target.classList.contains("dot")) {
-        const taskId = target.closest("li").getAttribute("data-task-id");
-        console.log('Retrieved taskId:', taskId);
-        // Rest of your code
-        fetch('update_task.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `taskId=${taskId}`, // Include taskId in the request body
-        })
-            .then(response => response.text())
-            .then(response => {
-                if (response === 'success') {
-                    // Update UI to mark the task as completed
-                    target.style.backgroundColor = 'green';
-                    target.parentElement.style.opacity = '0';
-                } else {
-                    console.error('Failed to update task completion status.');
-                }
+        if (target.classList.contains("dot")) {
+            const taskId = target.closest("li").getAttribute("data-task-id");
+            console.log('Retrieved taskId:', taskId);
+            // Rest of your code
+            fetch('update_task.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `taskId=${taskId}`, // Include taskId in the request body
             })
-            .catch(error => {
-                console.error('Error updating task completion status:', error);
-            });
-    }
-});
-
-
-
+                .then(response => response.text())
+                .then(response => {
+                    if (response === 'success') {
+                        // Update UI to mark the task as completed
+                        target.style.backgroundColor = 'green';
+                        target.parentElement.style.opacity = '0';
+                    } else {
+                        console.error('Failed to update task completion status.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating task completion status:', error);
+                });
+        }
+    });
 
     </script>
 
