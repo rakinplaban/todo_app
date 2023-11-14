@@ -100,7 +100,8 @@ div.content {
 }
 /* Plus sign inside a circle and the circle inside a square */
 .container {
-  width: 200px;
+  width: 75% !important;
+  margin: 0px 4px 14px 200px !important;
   height: 200px;
   background-color: #e8f3fb;
   position: relative;
@@ -166,7 +167,7 @@ div.content {
   padding-left: 166px;
 }
 .tasklist ul li {
-  margin: 12px auto 13px;
+  margin: 0px auto 13px;
   padding: 15px 0px 16px 36px;
   border: 5px solid #3498db;
   border-radius: 34px;

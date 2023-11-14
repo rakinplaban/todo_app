@@ -99,20 +99,14 @@ label{
   $bg_color : #e8f3fb;
 
 .container {
-    width: 200px;
-    height: 200px;
-    background-color: $bg_color; 
-    position: relative;
-    border: $border;
+  width: 75% !important;
+  margin: 0px 4px 14px 200px !important;
+  height: 200px;
+  background-color: #e8f3fb;
+  position: relative;
+  border: 5px solid #3498db;
 }
 
-// .container{
-//   width: 75%;
-//     padding-right: 15px;
-//     padding-left: 15px;
-//     margin-right: 9px;
-//     margin-left: 210px;
-// }
 
 .circle {
     width: 100px;
@@ -128,27 +122,6 @@ label{
     border: $border;
 }
 
-// .plus {
-//     width: 40px;
-//     height: 10px;
-//     background-color: white; /* White plus sign color */
-//     position: absolute;
-//     border: 2px solid #3498db;
-// }
-
-// .horizontal-line {
-//     position: absolute;
-//     top: 50%;
-//     left: 50%;
-//     transform: translate(-50%, -50%);
-// }
-
-// .vertical-line {
-//     position: absolute;
-//     top: 50%;
-//     left: 50%;
-//     transform: translate(-50%, -50%) rotate(90deg);
-// }
 
 .plus {
   width: 40px;
@@ -196,7 +169,7 @@ label{
   padding-left: 166px;
   ul{
     li{
-      margin: 12px auto 13px;
+      margin: 0px auto 13px;
       padding: 15px 0px 16px 36px;
       border: 5px solid #3498db;
       border-radius: 34px;
