@@ -220,6 +220,7 @@
                         // Update UI to mark the task as completed
                         target.style.backgroundColor = 'green';
                         target.parentElement.style.opacity = '0';
+                        location.reload();
                     } else {
                         console.error('Failed to update task completion status.');
                     }
