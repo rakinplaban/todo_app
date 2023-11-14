@@ -15,6 +15,8 @@ A simple web-based Todo List application to manage your tasks.
 
 Todo List Project is a web application that allows users to manage their tasks efficiently. It provides a user-friendly interface for adding new tasks and marking completed ones.
 
+**Live link -** http://todoapp123.free.nf
+
 ## Features
 
 - Add new tasks to your list
@@ -22,9 +24,9 @@ Todo List Project is a web application that allows users to manage their tasks e
 
 ## Installation
 
-1. Clone the repository.
-2. Open the project in your preferred code editor.
-3. ...
+1. Navigate to xampp folder where xampp is installed, then go to htdocs. In short: **xampp -> htdocs**.
+2. Clone the repository.
+3. Open your favourite editor.
 
 ## Usage
 
